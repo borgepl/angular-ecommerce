@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class CartService {
-
+ 
   cartItems: CartItem[] = [];
 
   totalPrice: Subject<number> = new Subject<number>();
@@ -76,5 +76,28 @@ export class CartService {
     console.log(`totalPrice: ${totalPriceValue.toFixed(2)}, totalQuantity: ${totalQuantityValue}`);
     console.log('----');
   }
+
+  decrementQuantity(cartItem: CartItem) {
+    
+    cartItem.quantity--;
+
+    if (cartItem.quantity === 0) {
+      this.removeFromCart(cartItem);
+    }
+    else {
+      this.computeCartTotals;
+    }
+  }
+
+  removeFromCart(cartItem: CartItem) {
+    
+    const itemIndex = this.cartItems.findIndex( tempCartItem => tempCartItem.id === cartItem.id );
+    
+    if (itemIndex > -1) {
+      this.cartItems.splice(itemIndex, 1);
+      this.computeCartTotals();
+    }
+  }
+
 }
 
