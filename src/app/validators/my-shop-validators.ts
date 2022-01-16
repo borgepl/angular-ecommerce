@@ -3,8 +3,8 @@ import { FormControl, ValidationErrors } from "@angular/forms";
 export class MyShopValidators {
 
      // whitespace validation
-     static notOnlyWhitespace(control: FormControl) : ValidationErrors {
-        
+     static notOnlyWhitespace(control: FormControl) : ValidationErrors | null {
+
         // check if string only contains whitespace
         if ((control.value != null) && (control.value.trim().length === 0)) {
 
@@ -13,7 +13,7 @@ export class MyShopValidators {
         }
         else {
             // valid, return null
-            return { 'notOnlyWhitespace': false };
+            return null;
         }
     }
 }
