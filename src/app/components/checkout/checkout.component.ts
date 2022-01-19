@@ -206,7 +206,7 @@ export class CheckoutComponent implements OnInit {
      this.router.navigateByUrl("/products");
   }
 
-  get firstName() { return this.checkoutFormGroup.get('customer.firstName'); }
+  get firstName() { return this.checkoutFormGroup.get('customer.firstName')!; }
   get lastName() { return this.checkoutFormGroup.get('customer.lastName'); }
   get email() { return this.checkoutFormGroup.get('customer.email'); }
 
