@@ -12,7 +12,24 @@ export class CartService {
   totalPrice: Subject<number> = new BehaviorSubject<number>(0);
   totalQuantity: Subject<number> = new BehaviorSubject<number>(0);
 
-  constructor() { }
+  // session storage in browser memory 
+  //storage: Storage = sessionStorage;
+  
+  // local storage - also available after browser restarts (from nrowser lcoal cache)
+  storage: Storage = localStorage;
+
+  constructor() { 
+
+    // read data from storage
+    let data = JSON.parse(this.storage.getItem('cartItems')?);
+    if (data != null) {
+      this.cartItems = data;
+      
+      // computate totals based on the data that is read
+      this.computeCartTotals();
+    }
+
+  }
 
   addToCart(theCartItem: CartItem) {
 
@@ -63,6 +80,10 @@ export class CartService {
 
     // log cart data just for debugging purposes
     this.logCartData(totalPriceValue, totalQuantityValue);
+
+    // Persist cartItems in session storage
+    this.persistCartItems();
+
   }
 
   logCartData(totalPriceValue: number, totalQuantityValue: number) {
@@ -75,6 +96,10 @@ export class CartService {
 
     console.log(`totalPrice: ${totalPriceValue.toFixed(2)}, totalQuantity: ${totalQuantityValue}`);
     console.log('----');
+  }
+
+  persistCartItems() {
+    this.storage.setItem('cartItem', JSON.stringify(this.cartItems));
   }
 
   decrementQuantity(cartItem: CartItem) {
