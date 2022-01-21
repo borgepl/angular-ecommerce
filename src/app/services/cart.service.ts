@@ -13,15 +13,15 @@ export class CartService {
   totalQuantity: Subject<number> = new BehaviorSubject<number>(0);
 
   // session storage in browser memory 
-  //storage: Storage = sessionStorage;
+  storage: Storage = sessionStorage;
   
   // local storage - also available after browser restarts (from nrowser lcoal cache)
-  storage: Storage = localStorage;
+  //storage: Storage = localStorage;
 
   constructor() { 
 
     // read data from storage
-    let data = JSON.parse(this.storage.getItem('cartItems')?);
+    let data = JSON.parse(this.storage.getItem('cartItems')!);
     if (data != null) {
       this.cartItems = data;
       
@@ -99,7 +99,7 @@ export class CartService {
   }
 
   persistCartItems() {
-    this.storage.setItem('cartItem', JSON.stringify(this.cartItems));
+    this.storage.setItem('cartItems', JSON.stringify(this.cartItems));
   }
 
   decrementQuantity(cartItem: CartItem) {
