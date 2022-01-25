@@ -10,6 +10,7 @@ import { CartService } from 'src/app/services/cart.service';
 import { CheckoutService } from 'src/app/services/checkout.service';
 import { MyShopFormService } from 'src/app/services/my-shop-form.service';
 import { MyShopValidators } from 'src/app/validators/my-shop-validators';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-checkout',
@@ -184,7 +185,8 @@ export class CheckoutComponent implements OnInit {
      // call REST API via the CheckoutService
      this.checkoutService.placeOrder(purchase).subscribe({
          next: response => {
-           alert(`Your order has been received.\nOrder tracking number: ${response.orderTrackingNumber}`);
+           Swal.fire('Thank you...',`Your order has been received.\nOrder tracking number: ${response.orderTrackingNumber}`,'success');
+           // alert(`Your order has been received.\nOrder tracking number: ${response.orderTrackingNumber}`);
  
            // reset cart
            this.resetCart();
