@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { Product } from '../common/product';
 import { ProductCategory } from '../common/product-category';
 
@@ -10,9 +11,8 @@ import { ProductCategory } from '../common/product-category';
 export class ProductService {
   
   
- 
-  private baseUrl = "http://localhost:8082/api/products";
-  private categoryUrl = "http://localhost:8082/api/product-category";
+  private baseUrl = environment.myshopApiUrl + "/products";
+  private categoryUrl = environment.myshopApiUrl + "/product-category";
 
   //set size to 100 items - just for testing - Data Rest by default only retrieves 20 items
   //private baseUrl = "http://localhost:8082/api/products?size=100";
