@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { from } from 'rxjs';
 import { Country } from 'src/app/common/country';
 import { Order } from 'src/app/common/order';
 import { OrderItem } from 'src/app/common/order-item';
 import { PaymentInfo } from 'src/app/common/payment-info';
+import { PaymentOrder } from 'src/app/common/payment-order';
+import { PaymentResult } from 'src/app/common/payment-result';
 import { Purchase } from 'src/app/common/purchase';
 import { State } from 'src/app/common/state';
 import { CartService } from 'src/app/services/cart.service';
@@ -43,10 +45,18 @@ export class CheckoutComponent implements OnInit {
    cardElement: any;
    displayError: any = "";
 
+   // Paument order for MultiSafePay
+   paymentOrder: PaymentOrder = new PaymentOrder();
+   
+    /** The Window object from Document defaultView - for redurect to external Url */
+    get window(): Window { return this.document.defaultView || window; }
+  
+
    isDisabled: boolean = false;
 
   constructor(private formBuilder: FormBuilder, private myShopFormService: MyShopFormService,
-              private cartService: CartService, private checkoutService: CheckoutService, private router: Router) { }
+              private cartService: CartService, private checkoutService: CheckoutService, private router: Router,
+              @Inject(DOCUMENT) readonly document: Document) { }
 
   ngOnInit(): void {
 
@@ -236,11 +246,28 @@ export class CheckoutComponent implements OnInit {
     console.log(`paymentInfo currency : ${this.paymentInfo.currency}`);
     console.log(`PaymentInfo receiptEmail : ${this.paymentInfo.receiptEmail}`);
 
+    // compute payment order for MultiSafaPay
+    
+    // Order id is generated with UUID on the backend
+    //this.paymentOrder.order_id = Math.random() + "-order-" + Math.random();
+    this.paymentOrder.description = "MyShop Purchase";
+    this.paymentOrder.amount = Math.round(this.totalPrice * 100);
+    this.paymentOrder.currency = "USD";
+    //this.paymentOrder.gateway = "MISTERCASH"; // default
+    this.paymentOrder.receiptEmail = purchase.customer.email;
+    this.paymentOrder.cust_firstName = purchase.customer.firstName;
+    this.paymentOrder.cust_lastName = purchase.customer.lastName;
+    this.paymentOrder.cust_address1 = purchase.billingAddress.street;
+    this.paymentOrder.cust_zipCode = purchase.billingAddress.zipCode;
+    this.paymentOrder.cust_city = purchase.billingAddress.city;
+    this.paymentOrder.cust_country = this.billingAddressCountry?.value.countryCode;
+
     // if valid form then
     // - create payment intent
     // - confirm card payment
     // - place order
 
+    /*
     if (!this.checkoutFormGroup.invalid && this.displayError.textContent === "") {
 
       this.isDisabled = true;
@@ -293,6 +320,48 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    */
+
+    this.checkoutService.createPaymentOrder(this.paymentOrder).subscribe({
+      next: response => {
+         
+        alert(JSON.stringify(response));
+        
+        console.log(`Response Status : ${response.success} `);
+        console.log(`Response Order id : ${response.order_id} `);
+        console.log(`Response Payment url : ${response.payment_url}`);
+        console.log(`Response QR : ${response.qr_url}`);
+        let qr_url: string = response.qr_url;
+
+        if (response.success) {
+
+          // Place Order
+          purchase.order_id = response.order_id;
+          this.checkoutService.placeOrder(purchase).subscribe({
+            next: response => {
+              
+              let order: String = response.orderTrackingNumber;
+             
+              // reset cart
+              this.resetCart();
+
+              // open QR url
+              this.window.open(qr_url);
+    
+            },
+            error: err => {
+              alert(`There was an error: ${err.message}`);
+            }
+          }
+        );
+         
+        
+        }
+          
+      }
+      })
+    
+
      /*
      // call REST API via the CheckoutService
      this.checkoutService.placeOrder(purchase).subscribe({
@@ -325,7 +394,7 @@ export class CheckoutComponent implements OnInit {
      this.checkoutFormGroup.reset();
  
      // navigate back to the products page
-     this.router.navigateByUrl("/products");
+     //this.router.navigateByUrl("/products");
   }
 
   get firstName() { return this.checkoutFormGroup.get('customer.firstName')!; }
@@ -417,3 +486,6 @@ export class CheckoutComponent implements OnInit {
   }
 
 }
+
+
+

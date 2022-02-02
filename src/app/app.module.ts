@@ -30,6 +30,7 @@ import myAppConfig from './config/my-app-config';
 import { MembersPageComponent } from './components/members-page/members-page.component';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
 import { AuthInterceptorService } from './services/auth-interceptor.service';
+import { PaySuccessComponent } from './components/pay-success/pay-success.component';
 
 const oktaConfig = Object.assign({
   onAuthRequired: (oktaAuth: any, injector: { get: (arg0: typeof Router) => any; }) => {
@@ -43,6 +44,7 @@ const oktaConfig = Object.assign({
 const oktaAuth = new OktaAuth(oktaConfig);
 
 const routes: Routes = [
+  {path: 'success', component: PaySuccessComponent}, 
   {path: 'members', component: MembersPageComponent, canActivate: [ OktaAuthGuard] },
   {path: 'order-history', component: OrderHistoryComponent, canActivate: [ OktaAuthGuard] },
 
@@ -73,7 +75,8 @@ const routes: Routes = [
     LoginComponent,
     LoginStatusComponent,
     MembersPageComponent,
-    OrderHistoryComponent
+    OrderHistoryComponent,
+    PaySuccessComponent
   ],
   imports: [
     RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' }),
